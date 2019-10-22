@@ -15,6 +15,7 @@ namespace Expressions.Task2
                 { nameof(foo.Map2), nameof(bar.Map4) }
             };
             bar = Mapper.Map<Foo, Bar>(foo, bindings);
+            bar = Mapper.Map<Foo, Bar>(foo, bindings);
 
             Console.WriteLine("Finish");
             Console.ReadKey();
