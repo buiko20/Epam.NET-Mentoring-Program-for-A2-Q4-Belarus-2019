@@ -1,18 +1,15 @@
-﻿using Expressions.Task3.E3SQueryProvider.Models.Entitites;
-using Expressions.Task3.E3SQueryProvider.Services;
-using System;
+﻿using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using Expressions.Task3.E3SQueryProvider.Models.Entitites;
+using Expressions.Task3.E3SQueryProvider.Services;
 
 namespace Expressions.Task3.E3SQueryProvider.QueryProvider
 {
-    public class E3SEntitySet<T> : IQueryable<T> where T : BaseE3SEntity
+    public class E3SEntitySet<T> : IQueryable<T>, IQueryable, IEnumerable<T>, IEnumerable, IOrderedQueryable<T>, IOrderedQueryable where T : BaseE3SEntity
     {
-        protected readonly Expression expression;
-        protected readonly IQueryProvider provider;
-
         public E3SEntitySet(E3SSearchService client)
         {
             if (client == null)
@@ -20,32 +17,21 @@ namespace Expressions.Task3.E3SQueryProvider.QueryProvider
                 throw new ArgumentNullException(nameof(client));
             }
 
-            expression = Expression.Constant(this);
-            provider = new E3SLinqProvider(client);
+            Expression = Expression.Constant(this);
+            Provider = new E3SLinqProvider(client);
         }
-
-        #region public properties
 
         public Type ElementType => typeof(T);
 
-        public Expression Expression => expression;
+        public Expression Expression { get; }
 
-        public IQueryProvider Provider => provider;
-
-        #endregion
-
-        #region public methods
+        public IQueryProvider Provider { get; }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return provider.Execute<IEnumerable<T>>(expression).GetEnumerator();
+            return Provider.Execute<IEnumerable<T>>(Expression).GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return provider.Execute<IEnumerable>(expression).GetEnumerator();
-        }
-
-        #endregion
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

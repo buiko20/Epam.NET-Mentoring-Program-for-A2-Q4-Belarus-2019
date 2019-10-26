@@ -6,39 +6,35 @@ using System.Linq.Expressions;
 
 namespace Expressions.Task3.E3SQueryProvider.QueryProvider
 {
-    public class E3SQuery<T> : IQueryable<T>
+    public class E3SQuery<T> : IQueryable<T>, IQueryable, IEnumerable<T>, IEnumerable, IOrderedQueryable<T>, IOrderedQueryable
     {
-        private readonly Expression _expression;
-        private readonly E3SLinqProvider _provider;
-        
-        public E3SQuery(Expression expression, E3SLinqProvider provider)
+        public E3SQuery(Expression expression, IQueryProvider provider)
         {
-            _expression = expression;
-            _provider = provider;
-        }
+            if (expression == null)
+            {
+                throw new ArgumentNullException(nameof(expression));
+            }
 
-        #region public properties
+            if (!typeof(IQueryable<T>).IsAssignableFrom(expression.Type))
+            {
+                throw new ArgumentOutOfRangeException(nameof(expression));
+            }
+
+            Expression = expression;
+            Provider = provider;
+        }
 
         public Type ElementType => typeof(T);
 
-        public Expression Expression => _expression;
+        public Expression Expression { get; }
 
-        public IQueryProvider Provider => _provider;
-
-        #endregion
-
-        #region public methods
+        public IQueryProvider Provider { get; }
 
         public IEnumerator<T> GetEnumerator()
         {
-            return _provider.Execute<IEnumerable<T>>(_expression).GetEnumerator();
+            return Provider.Execute<IEnumerable<T>>(Expression).GetEnumerator();
         }
 
-        IEnumerator IEnumerable.GetEnumerator()
-        {
-            return _provider.Execute<IEnumerable>(_expression).GetEnumerator();
-        }
-
-        #endregion
+        IEnumerator IEnumerable.GetEnumerator() => GetEnumerator();
     }
 }

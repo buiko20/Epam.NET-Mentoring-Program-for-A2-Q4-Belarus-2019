@@ -15,7 +15,7 @@ namespace Expressions.Task3.E3SQueryProvider.Services
 
         private readonly string _baseAddress;
         private readonly HttpClient _httpClient;
-        
+
         #endregion
 
         public E3SSearchService(HttpClient httpClient, string baseAddress)
@@ -28,7 +28,7 @@ namespace Expressions.Task3.E3SQueryProvider.Services
 
         public IEnumerable<T> SearchFTS<T>(string query, int start = 0, int limit = 0) where T : BaseE3SEntity
         {
-            var requestGenerator = new FTSRequestGenerator(_baseAddress);
+            var requestGenerator = new FtsRequestGenerator(_baseAddress);
 
             Uri request = requestGenerator.GenerateRequestUrl<T>(query, start, limit);
 
@@ -36,10 +36,10 @@ namespace Expressions.Task3.E3SQueryProvider.Services
 
             return JsonConvert.DeserializeObject<FTSResponse<T>>(resultString).Items.Select(t => t.Data);
         }
-        
+
         public IEnumerable SearchFTS(Type type, string query, int start = 0, int limit = 0)
         {
-            var requestGenerator = new FTSRequestGenerator(_baseAddress);
+            var requestGenerator = new FtsRequestGenerator(_baseAddress);
 
             Uri request = requestGenerator.GenerateRequestUrl(type, query, start, limit);
 

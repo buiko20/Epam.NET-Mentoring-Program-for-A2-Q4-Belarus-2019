@@ -1,4 +1,4 @@
-﻿namespace Expressions.Task3.QueryProvider.Models.Entitites
+﻿namespace Expressions.Task3.E3SQueryProvider.Models.Entitites
 {
     public class WorkHistoryEntity
     {

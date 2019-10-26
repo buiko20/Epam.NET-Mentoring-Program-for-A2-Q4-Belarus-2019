@@ -1,6 +1,5 @@
 ﻿using Expressions.Task3.E3SQueryProvider.Attributes;
 using System.Collections.Generic;
-using Expressions.Task3.QueryProvider.Models.Entitites;
 
 namespace Expressions.Task3.E3SQueryProvider.Models.Entitites
 {

@@ -1,27 +1,22 @@
-﻿using Expressions.Task3.E3SQueryProvider.Attributes;
-using Expressions.Task3.E3SQueryProvider.Models.Request;
+﻿using System;
+using System.Collections.Generic;
+using System.Linq;
 using Microsoft.AspNetCore.WebUtilities;
 using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
+using Expressions.Task3.E3SQueryProvider.Attributes;
+using Expressions.Task3.E3SQueryProvider.Models.Request;
 
 namespace Expressions.Task3.E3SQueryProvider
 {
-    public class FTSRequestGenerator
+    public class FtsRequestGenerator
     {
-        private readonly string _FTSSearchTemplate = @"/searchFts";
+        private const string FtsSearchTemplate = @"/searchFts";
         private readonly string _baseAddress;
 
-        #region Constructors
-        
-        public FTSRequestGenerator(string baseAddress)
+        public FtsRequestGenerator(string baseAddress)
         {
             _baseAddress = baseAddress;
         }
-
-        #endregion
-
-        #region public methods
 
         public Uri GenerateRequestUrl<T>(string query = "*", int start = 0, int limit = 10)
         {
@@ -34,20 +29,15 @@ namespace Expressions.Task3.E3SQueryProvider
 
             var ftsQueryRequest = new FTSQueryRequest
             {
-                Statements = new List<Statement>
-                {
-                    new Statement {
-                        Query = query
-                    }
-                },
+                Statements = GetStatements(query),
                 Start = start,
                 Limit = limit
             };
 
             var ftsQueryRequestString = JsonConvert.SerializeObject(ftsQueryRequest);
 
-            var uri = BindByName($"{_baseAddress}{_FTSSearchTemplate}",
-                new Dictionary<string, string>()
+            Uri uri = BindByName($"{_baseAddress}{FtsSearchTemplate}",
+                new Dictionary<string, string>
                 {
                     { "metaType", metaTypeName },
                     { "query", ftsQueryRequestString }
@@ -56,9 +46,7 @@ namespace Expressions.Task3.E3SQueryProvider
             return uri;
         }
 
-        #endregion
-
-        private static Uri BindByName(string baseAddress, Dictionary<string, string> queryParams)
+        private static Uri BindByName(string baseAddress, IDictionary<string, string> queryParams)
             => new Uri(QueryHelpers.AddQueryString(baseAddress, queryParams));
 
         private static string GetMetaTypeName(Type type)
@@ -66,9 +54,17 @@ namespace Expressions.Task3.E3SQueryProvider
             var attributes = type.GetCustomAttributes(typeof(E3SMetaTypeAttribute), false);
 
             if (attributes.Length == 0)
-                throw new Exception(string.Format("Entity {0} do not have attribute E3SMetaType", type.FullName));
+            {
+                throw new Exception($"Entity {type.FullName} do not have attribute E3SMetaType");
+            }
 
             return ((E3SMetaTypeAttribute)attributes[0]).Name;
+        }
+
+        private static List<Statement> GetStatements(string query)
+        {
+            string[] statements = query.Split(ExpressionToFtsRequestTranslator.AndSeparator, StringSplitOptions.RemoveEmptyEntries);
+            return statements.Select(s => new Statement { Query = s }).ToList();
         }
     }
 }

@@ -1,15 +1,15 @@
-using Expressions.Task3.E3SQueryProvider.Client;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http;
+using Expressions.Task3.E3SQueryProvider.Helpers;
 using Expressions.Task3.E3SQueryProvider.Models.Entitites;
 using Expressions.Task3.E3SQueryProvider.QueryProvider;
 using Expressions.Task3.E3SQueryProvider.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Net.Http;
 
-namespace Expressions.Task3.E3SQueryProvider.Test
+namespace Expressions.Task3.E3SQueryProvider.Test.Ignored
 {
     /// <summary>
     /// Please ignore this integration test set, because the E3S emulator is not currently available.

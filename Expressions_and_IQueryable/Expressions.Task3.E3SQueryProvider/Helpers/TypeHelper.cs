@@ -8,20 +8,20 @@ namespace Expressions.Task3.E3SQueryProvider.Helpers
         internal static Type GetElementType(Type seqType)
         {
             Type ienum = FindIEnumerable(seqType);
-            if (ienum == null)
-                return seqType;
-
-            return ienum.GetGenericArguments()[0];
-
+            return ienum == null ? seqType : ienum.GetGenericArguments()[0];
         }
 
         private static Type FindIEnumerable(Type seqType)
         {
             if (seqType == null || seqType == typeof(string))
+            {
                 return null;
+            }
 
             if (seqType.IsArray)
+            {
                 return typeof(IEnumerable<>).MakeGenericType(seqType.GetElementType());
+            }
 
             if (seqType.IsGenericType)
             {
@@ -34,16 +34,16 @@ namespace Expressions.Task3.E3SQueryProvider.Helpers
             }
 
             Type[] ifaces = seqType.GetInterfaces();
-
-            if (ifaces != null && ifaces.Length > 0)
+            if (ifaces.Length > 0)
             {
                 foreach (Type iface in ifaces)
                 {
                     Type ienum = FindIEnumerable(iface);
                     if (ienum != null)
+                    {
                         return ienum;
+                    }
                 }
-
             }
 
             if (seqType.BaseType != null && seqType.BaseType != typeof(object))

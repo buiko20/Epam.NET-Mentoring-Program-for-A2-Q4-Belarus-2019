@@ -7,25 +7,66 @@
  * imply the following rules: https://kb.epam.com/display/EPME3SDEV/Telescope+public+REST+for+data#TelescopepublicRESTfordata-FTSRequestSyntax
  */
 
-using Expressions.Task3.E3SQueryProvider.Models.Entitites;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Web;
+using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Expressions.Task3.E3SQueryProvider.Models.Entitites;
+using Expressions.Task3.E3SQueryProvider.Models.Request;
+using Microsoft.Extensions.Configuration;
+using Newtonsoft.Json;
 
 namespace Expressions.Task3.E3SQueryProvider.Test
 {
     [TestClass]
     public class E3SAndOperatorSupportTests
     {
-        #region SubTask 3: AND operator support
+        private static readonly IConfigurationRoot Config = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.json")
+            .Build();
+
+        private static readonly string BaseUrl = Config["api:apiBaseUrl"];
+
+        [TestMethod]
+        public void TestAndOperator_EqualsAndStartWith()
+        {
+            var translator = new ExpressionToFtsRequestTranslator();
+            Expression<Func<IQueryable<EmployeeEntity>, IQueryable<EmployeeEntity>>> expression
+                = query => query.Where(e => e.Workstation == "EPRUIZHW006" && e.Manager.StartsWith("John"));
+
+            string translated = translator.Translate(expression);
+            Assert.AreEqual($"Workstation:(EPRUIZHW006){ExpressionToFtsRequestTranslator.AndSeparator}Manager:(John*)", translated);
+        }
+
+        [TestMethod]
+        public void TestAndOperator_EqualsAndStartWith_Reverse()
+        {
+            var translator = new ExpressionToFtsRequestTranslator();
+            Expression<Func<IQueryable<EmployeeEntity>, IQueryable<EmployeeEntity>>> expression
+                = query => query.Where(e => e.Manager.StartsWith("John") && e.Workstation == "EPRUIZHW006");
+
+            string translated = translator.Translate(expression);
+            Assert.AreEqual($"Manager:(John*){ExpressionToFtsRequestTranslator.AndSeparator}Workstation:(EPRUIZHW006)", translated);
+        }
+
+        [TestMethod]
+        public void TestAndOperator_EqualsAndContains()
+        {
+            var translator = new ExpressionToFtsRequestTranslator();
+            Expression<Func<IQueryable<EmployeeEntity>, IQueryable<EmployeeEntity>>> expression
+                = query => query.Where(e => e.Manager.Equals("John") && e.Workstation.Contains("EPRUIZHW006"));
+
+            string translated = translator.Translate(expression);
+            Assert.AreEqual($"Manager:(John){ExpressionToFtsRequestTranslator.AndSeparator}Workstation:(*EPRUIZHW006*)", translated);
+        }
 
         [TestMethod]
         public void TestAndQueryable()
         {
-            var translator = new ExpressionToFTSRequestTranslator();
+            var translator = new ExpressionToFtsRequestTranslator();
             Expression<Func<IQueryable<EmployeeEntity>, IQueryable<EmployeeEntity>>> expression
-                = query => query.Where(e => e.Workstation == "EPRUIZHW006" && e.Manager.StartsWith("John"));
+                = q => q.Where(e => e.Workstation == "EPRUIZHW006" && e.Manager.StartsWith("John"));
             /*
              * The expression above should be converted to the following FTSQueryRequest and then serialized inside FTSRequestGenerator:
              * "statements": [
@@ -35,10 +76,21 @@ namespace Expressions.Task3.E3SQueryProvider.Test
               ],
              */
 
-            // todo: create asserts for this test by yourself, because they will depend on your final implementation
-            throw new NotImplementedException("Please implement this test and the appropriate functionality");
+            string translated = translator.Translate(expression);
+
+            // Generate Uri using FtsRequestGenerator and then get from result Uri 'query' parameters to Assert.
+            var ftsRequestGenerator = new FtsRequestGenerator(BaseUrl);
+            Uri uri = ftsRequestGenerator.GenerateRequestUrl<EmployeeEntity>(translated);
+            var query = HttpUtility.ParseQueryString(uri.Query).Get("query");
+            var ftsQueryRequest = JsonConvert.DeserializeObject<FTSQueryRequest>(query);
+            string[] statements = ftsQueryRequest.Statements.Select(s => s.Query).ToArray();
+
+            CollectionAssert.AreEquivalent(expected: GetStatements(translated), actual: statements);
         }
 
-        #endregion
+        private static string[] GetStatements(string query)
+        {
+            return query.Split(ExpressionToFtsRequestTranslator.AndSeparator, StringSplitOptions.RemoveEmptyEntries);
+        }
     }
 }

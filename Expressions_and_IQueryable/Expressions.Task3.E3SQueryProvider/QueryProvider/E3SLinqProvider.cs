@@ -1,23 +1,32 @@
-﻿using Expressions.Task3.E3SQueryProvider.Helpers;
-using Expressions.Task3.E3SQueryProvider.Services;
-using System;
+﻿using System;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Reflection;
+using Expressions.Task3.E3SQueryProvider.Helpers;
+using Expressions.Task3.E3SQueryProvider.Services;
 
 namespace Expressions.Task3.E3SQueryProvider.QueryProvider
 {
     public class E3SLinqProvider : IQueryProvider
     {
-        private readonly E3SSearchService _e3sClient;
+        private readonly E3SSearchService _e3SClient;
 
         public E3SLinqProvider(E3SSearchService client)
         {
-            _e3sClient = client;
+            _e3SClient = client ?? throw new ArgumentNullException(nameof(client));
         }
 
         public IQueryable CreateQuery(Expression expression)
         {
-            throw new NotImplementedException();
+            Type elementType = TypeHelper.GetElementType(expression.Type);
+            try
+            {
+                return (IQueryable)Activator.CreateInstance(typeof(E3SQuery<>).MakeGenericType(elementType), this, expression);
+            }
+            catch (TargetInvocationException tie)
+            {
+                throw tie.InnerException ?? tie;
+            }
         }
 
         public IQueryable<TElement> CreateQuery<TElement>(Expression expression)
@@ -27,17 +36,14 @@ namespace Expressions.Task3.E3SQueryProvider.QueryProvider
 
         public object Execute(Expression expression)
         {
-            throw new NotImplementedException();
-        }
-
-        public TResult Execute<TResult>(Expression expression)
-        {
             Type itemType = TypeHelper.GetElementType(expression.Type);
 
-            var translator = new ExpressionToFTSRequestTranslator();
+            var translator = new ExpressionToFtsRequestTranslator();
             string queryString = translator.Translate(expression);
 
-            return (TResult)_e3sClient.SearchFTS(itemType, queryString);
+            return _e3SClient.SearchFTS(itemType, queryString);
         }
+
+        public TResult Execute<TResult>(Expression expression) => (TResult)Execute(expression);
     }
 }
