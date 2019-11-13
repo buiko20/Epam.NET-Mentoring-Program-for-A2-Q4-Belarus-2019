@@ -2,8 +2,11 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Timers;
 using RabbitMQ.Client;
+using RabbitMQ.Client.Events;
 using Shared;
+using Timer = System.Timers.Timer;
 
 namespace RabbitMQ.DirectoryListener
 {
@@ -11,11 +14,17 @@ namespace RabbitMQ.DirectoryListener
     {
         private const string HostName = "localhost";
         private const string Exchange = "Message_Queues";
-        private const string RoutingKey = "RabbitMQ";
+        private const string FileSendRoutingKey = "RabbitMQ";
+        private const string StatusSendRoutingKey = "StatusSendRoutingKey";
+        private const string StatusChangeRoutingKey = "StatusChangeRoutingKey";
         private const string DirectoryToWatch = @".";
         private const string WatcherFilter = "*.pdf";
+        private const int Interval = 5000;
 
-        private static readonly object SyncRoot = new object();
+        private static int _chunkSize = 4096;
+        private static Status _status = Status.Waiting;
+        private static Guid _guid = Guid.NewGuid();
+
         private static readonly IList<string> Pdfs = new List<string>();
 
         private static void Main()
@@ -30,18 +39,32 @@ namespace RabbitMQ.DirectoryListener
                     using (var channel = connection.CreateModel())
                     {
                         channel.ExchangeDeclare(Exchange, ExchangeType.Direct);
+                        var getStatusAndChangeChunkSizeQueueName = channel.QueueDeclare().QueueName;
+                        channel.QueueBind(getStatusAndChangeChunkSizeQueueName, Exchange, StatusChangeRoutingKey);
+
+                        var consumer = new EventingBasicConsumer(channel);
+                        consumer.Received += (sender, args) =>
+                        {
+                            int chunkSize = Convert.ToInt32(args.BasicProperties.Headers["chunkSize"]);
+                            _chunkSize = chunkSize;
+                            SendStatus(channel);
+                            Console.WriteLine($"New chunkSize = {_chunkSize}");
+                        };
+                        channel.BasicConsume(getStatusAndChangeChunkSizeQueueName, autoAck: true, consumer);
 
                         var onChanged = new FileSystemEventHandler((sender, e) =>
                         {
-                            lock (SyncRoot)
+                            if (!Pdfs.Any(s => s.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase)))
                             {
-                                if (!Pdfs.Any(s => s.Equals(e.FullPath, StringComparison.OrdinalIgnoreCase)))
-                                {
-                                    Pdfs.Add(e.FullPath);
-                                    SendFile(channel, e.FullPath);
-                                }
+                                Pdfs.Add(e.FullPath);
+                                SendFile(channel, e.FullPath);
                             }
                         });
+
+                        var sendStatusAction = new ElapsedEventHandler((sender, args) => { SendStatus(channel); });
+                        var timer = new Timer(Interval) { AutoReset = true };
+                        timer.Elapsed += sendStatusAction;
+                        timer.Start();
 
                         watcher.Changed += onChanged;
                         watcher.EnableRaisingEvents = true;
@@ -49,6 +72,8 @@ namespace RabbitMQ.DirectoryListener
                         Console.WriteLine("Press key to exit");
                         Console.ReadKey();
                         watcher.Changed -= onChanged;
+                        timer.Elapsed -= sendStatusAction;
+                        timer.Dispose();
                     }
                 }
             }
@@ -56,7 +81,8 @@ namespace RabbitMQ.DirectoryListener
 
         private static void SendFile(IModel model, string filePath)
         {
-            var fe = new FileEnumerator(filePath);
+            _status = Status.Sending;
+            var fe = new FileEnumerator(filePath, _chunkSize);
             foreach (Chunk chunk in fe)
             {
                 var basicProperties = model.CreateBasicProperties();
@@ -69,8 +95,24 @@ namespace RabbitMQ.DirectoryListener
                     { "totalSize", chunk.TotalSize },
                 };
 
-                model.BasicPublish(Exchange, RoutingKey, basicProperties, chunk.Data);
+                model.BasicPublish(Exchange, FileSendRoutingKey, basicProperties, chunk.Data);
             }
+
+            _status = Status.Waiting;
+        }
+
+        private static void SendStatus(IModel model)
+        {
+            var basicProperties = model.CreateBasicProperties();
+            basicProperties.Persistent = true;
+            basicProperties.Headers = new Dictionary<string, object>
+            {
+                { "status", _status.ToString() },
+                { "guid", _guid.ToString() },
+                { "chunkSize", _chunkSize }
+            };
+
+            model.BasicPublish(Exchange, StatusSendRoutingKey, basicProperties, new byte[0]);
         }
     }
 }
