@@ -82,20 +82,22 @@ namespace RabbitMQ.DirectoryListener
         private static void SendFile(IModel model, string filePath)
         {
             _status = Status.Sending;
-            var fe = new FileEnumerator(filePath, _chunkSize);
-            foreach (Chunk chunk in fe)
+            using (var fe = new FileIterator(filePath, _chunkSize))
             {
-                var basicProperties = model.CreateBasicProperties();
-                basicProperties.Persistent = true;
-                basicProperties.Headers = new Dictionary<string, object>
+                foreach (Chunk chunk in fe)
                 {
-                    { "file", chunk.FileName },
-                    { "size", chunk.Size },
-                    { "offset", chunk.Offset },
-                    { "totalSize", chunk.TotalSize },
-                };
+                    var basicProperties = model.CreateBasicProperties();
+                    basicProperties.Persistent = true;
+                    basicProperties.Headers = new Dictionary<string, object>
+                    {
+                        { "file", chunk.FileName },
+                        { "size", chunk.Size },
+                        { "offset", chunk.Offset },
+                        { "totalSize", chunk.TotalSize },
+                    };
 
-                model.BasicPublish(Exchange, FileSendRoutingKey, basicProperties, chunk.Data);
+                    model.BasicPublish(Exchange, FileSendRoutingKey, basicProperties, chunk.Data);
+                }
             }
 
             _status = Status.Waiting;
