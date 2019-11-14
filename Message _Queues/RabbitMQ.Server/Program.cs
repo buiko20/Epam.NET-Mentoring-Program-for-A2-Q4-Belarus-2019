@@ -2,7 +2,6 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
-using System.Threading;
 using Newtonsoft.Json;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
@@ -13,7 +12,7 @@ namespace RabbitMQ.Server
     {
         private const string HostName = "localhost";
         private const string Exchange = "Message_Queues";
-        private const string FileSendRoutingKey = "RabbitMQ";
+        private const string FileSendRoutingKey = "FileSendRoutingKey";
         private const string StatusSendRoutingKey = "StatusSendRoutingKey";
         private const string StatusChangeRoutingKey = "StatusChangeRoutingKey";
         private const string WatcherFilter = "settings.json";
@@ -46,11 +45,7 @@ namespace RabbitMQ.Server
                     using (var watcher = new FileSystemWatcher(Storage, WatcherFilter))
                     {
                         watcher.NotifyFilter = NotifyFilters.LastWrite;
-                        watcher.Changed += (sender, args) =>
-                        {
-                            ChangeChunkSizeAndGetStatus(channel);
-                        };
-
+                        watcher.Changed += (sender, args) => { ChangeChunkSizeAndGetStatus(channel); };
                         watcher.EnableRaisingEvents = true;
 
                         Console.ReadKey();
@@ -71,7 +66,6 @@ namespace RabbitMQ.Server
             int size = Convert.ToInt32(e.BasicProperties.Headers["size"]);
             long offset = Convert.ToInt64(e.BasicProperties.Headers["offset"]);
             long totalSize = Convert.ToInt64(e.BasicProperties.Headers["totalSize"]);
-            //  Console.WriteLine($"{fileName} size={size} offset={offset} totalSize={totalSize}");
 
             string path = Path.Combine(Storage, fileName);
             using (var fs = new FileStream(path, FileMode.OpenOrCreate, FileAccess.Write, FileShare.None))

@@ -1,4 +1,4 @@
-﻿namespace Shared
+﻿namespace RabbitMQ.DirectoryListener
 {
     public class Chunk
     {

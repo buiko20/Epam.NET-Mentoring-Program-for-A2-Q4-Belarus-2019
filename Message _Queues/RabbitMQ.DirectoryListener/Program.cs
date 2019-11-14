@@ -5,8 +5,6 @@ using System.Linq;
 using System.Timers;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using Shared;
-using Timer = System.Timers.Timer;
 
 namespace RabbitMQ.DirectoryListener
 {
@@ -14,7 +12,7 @@ namespace RabbitMQ.DirectoryListener
     {
         private const string HostName = "localhost";
         private const string Exchange = "Message_Queues";
-        private const string FileSendRoutingKey = "RabbitMQ";
+        private const string FileSendRoutingKey = "FileSendRoutingKey";
         private const string StatusSendRoutingKey = "StatusSendRoutingKey";
         private const string StatusChangeRoutingKey = "StatusChangeRoutingKey";
         private const string DirectoryToWatch = @".";
@@ -93,7 +91,7 @@ namespace RabbitMQ.DirectoryListener
                         { "file", chunk.FileName },
                         { "size", chunk.Size },
                         { "offset", chunk.Offset },
-                        { "totalSize", chunk.TotalSize },
+                        { "totalSize", chunk.TotalSize }
                     };
 
                     model.BasicPublish(Exchange, FileSendRoutingKey, basicProperties, chunk.Data);

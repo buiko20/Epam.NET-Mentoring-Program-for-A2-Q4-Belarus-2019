@@ -7,8 +7,6 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.DirectoryListener"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "RabbitMQ.Server", "RabbitMQ.Server\RabbitMQ.Server.csproj", "{1655952B-C3EF-47A3-AD43-B987D97AE6F9}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Shared", "Shared\Shared.csproj", "{D27CDD9E-1D66-46DC-AE5B-C745F1796AEF}"
-EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -23,10 +21,6 @@ Global
 		{1655952B-C3EF-47A3-AD43-B987D97AE6F9}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{1655952B-C3EF-47A3-AD43-B987D97AE6F9}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{1655952B-C3EF-47A3-AD43-B987D97AE6F9}.Release|Any CPU.Build.0 = Release|Any CPU
-		{D27CDD9E-1D66-46DC-AE5B-C745F1796AEF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{D27CDD9E-1D66-46DC-AE5B-C745F1796AEF}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{D27CDD9E-1D66-46DC-AE5B-C745F1796AEF}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{D27CDD9E-1D66-46DC-AE5B-C745F1796AEF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

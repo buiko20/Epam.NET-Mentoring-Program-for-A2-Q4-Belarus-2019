@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 
-namespace Shared
+namespace RabbitMQ.DirectoryListener
 {
     public class FileIterator : IEnumerable<Chunk>, IEnumerable, IDisposable
     {
@@ -70,7 +70,9 @@ namespace Shared
         private void ThrowIfDisposed()
         {
             if (_isDisposed)
+            {
                 throw new ObjectDisposedException(nameof(FileIterator));
+            }
         }
     }
 }
