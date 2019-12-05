@@ -1,9 +1,11 @@
-﻿namespace CastleProxy.Logic
+﻿using System;
+
+namespace CastleProxy.Logic
 {
     public interface IService
     {
-        void Create(BusinessEntity entity);
+        Guid CreateRandom();
 
-        BusinessEntity Get(long id);
+        BusinessEntity Get(Guid id);
     }
 }

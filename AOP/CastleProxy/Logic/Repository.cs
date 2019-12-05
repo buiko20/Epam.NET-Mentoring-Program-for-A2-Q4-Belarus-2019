@@ -11,11 +11,14 @@ namespace CastleProxy.Logic
         public void Create(DbEntity entity)
         {
             if (entity == null)
+            {
                 throw new ArgumentNullException(nameof(entity));
+            }
+
             _entities.Add(entity);
         }
 
-        public DbEntity Get(long id)
+        public DbEntity Get(Guid id)
         {
             return _entities.FirstOrDefault(e => e.Id == id);
         }

@@ -1,9 +1,11 @@
-﻿namespace CastleProxy.Logic
+﻿using System;
+
+namespace CastleProxy.Logic
 {
     public interface IRepository
     {
         void Create(DbEntity entity);
 
-        DbEntity Get(long id);
+        DbEntity Get(Guid id);
     }
 }

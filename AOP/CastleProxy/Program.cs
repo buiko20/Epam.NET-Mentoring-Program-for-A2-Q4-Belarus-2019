@@ -1,8 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using CastleProxy.Logic;
 
 namespace CastleProxy
 {
@@ -10,8 +7,14 @@ namespace CastleProxy
     {
         private static void Main()
         {
+            var service = DependencyRoot.Resolve<IService>();
 
+            Guid guid = service.CreateRandom();
+            var entity = service.Get(guid);
 
+            Console.WriteLine(entity);
+
+            DependencyRoot.Dispose();
             Console.WriteLine("Finish");
             Console.ReadKey();
         }
