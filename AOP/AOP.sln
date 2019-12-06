@@ -5,6 +5,8 @@ VisualStudioVersion = 16.0.29519.87
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CastleProxy", "CastleProxy\CastleProxy.csproj", "{0E0BBB55-932B-4311-9C58-FCF1811443F7}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharpCodeRewriting", "PostSharpCodeRewriting\PostSharpCodeRewriting.csproj", "{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -15,6 +17,10 @@ Global
 		{0E0BBB55-932B-4311-9C58-FCF1811443F7}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E0BBB55-932B-4311-9C58-FCF1811443F7}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E0BBB55-932B-4311-9C58-FCF1811443F7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
