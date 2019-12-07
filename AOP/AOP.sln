@@ -7,6 +7,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CastleProxy", "CastleProxy\
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PostSharpCodeRewriting", "PostSharpCodeRewriting\PostSharpCodeRewriting.csproj", "{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CastleAsyncProxy", "CastleAsyncProxy\CastleAsyncProxy.csproj", "{D4F705E4-B55A-4527-973D-2A41D8671577}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -21,6 +23,10 @@ Global
 		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BAF8BCEC-609A-42B0-8D83-0BD0B08701DE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D4F705E4-B55A-4527-973D-2A41D8671577}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D4F705E4-B55A-4527-973D-2A41D8671577}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D4F705E4-B55A-4527-973D-2A41D8671577}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D4F705E4-B55A-4527-973D-2A41D8671577}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
